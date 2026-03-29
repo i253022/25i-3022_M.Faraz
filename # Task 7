@@ -1,0 +1,23 @@
+# Task 7 
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Step 0: Load MNIST Dataset
+
+data = np.load('mnist.npz')
+
+X_train = data['x_train'].reshape(-1, 784) / 255.0
+Y_train = data['y_train']
+
+X_test = data['x_test'].reshape(-1, 784) / 255.0
+Y_test = data['y_test']
+
+# One-hot encoding
+def one_hot(y, num_classes=10):
+    return np.eye(num_classes)[y]
+
+Y_train_oh = one_hot(Y_train)
+Y_test_oh = one_hot(Y_test)
+
+# Step 1: Sigmoid Function
