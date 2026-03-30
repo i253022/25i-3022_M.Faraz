@@ -21,3 +21,41 @@ Y_train_oh = one_hot(Y_train)
 Y_test_oh = one_hot(Y_test)
 
 # Step 1: Sigmoid Function
+def sigmoid(z):
+    z = np.clip(z, -500, 500)
+    return 1 / (1 + np.exp(-z))
+
+def sigmoid_derivative(a):
+    return a * (1 - a)
+
+# Step 2: Initialize Parameters
+
+np.random.seed(42)
+
+W1 = np.random.uniform(-0.5, 0.5, (784, 128))
+b1 = np.zeros((1, 128))
+
+W2 = np.random.uniform(-0.5, 0.5, (128, 64))
+b2 = np.zeros((1, 64))
+
+W3 = np.random.uniform(-0.5, 0.5, (64, 10))
+b3 = np.zeros((1, 10))
+
+# Step 3: Forward Pass
+
+def forward_pass(X, W1, b1, W2, b2, W3, b3):
+    Z1 = X @ W1 + b1
+    A1 = sigmoid(Z1)
+
+    Z2 = A1 @ W2 + b2
+    A2 = sigmoid(Z2)
+
+    Z3 = A2 @ W3 + b3
+    A3 = sigmoid(Z3)
+
+    return Z1, A1, Z2, A2, Z3, A3
+
+# Step 4: Loss Function (MSE)
+
+def mse_loss(Y_true, Y_pred):
+    return np.mean((Y_true - Y_pred) ** 2)
