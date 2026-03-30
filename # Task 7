@@ -83,3 +83,91 @@ def backpropagation(X, Y_true, Z1, A1, Z2, A2, Z3, A3, W1, W2, W3):
     return dW1, db1, dW2, db2, dW3, db3
 
 # Step 6: Update Weights
+def update_weights(W1, b1, W2, b2, W3, b3,
+                   dW1, db1, dW2, db2, dW3, db3,
+                   lr):
+    
+    W1 -= lr * dW1
+    b1 -= lr * db1
+
+    W2 -= lr * dW2
+    b2 -= lr * db2
+
+    W3 -= lr * dW3
+    b3 -= lr * db3
+
+    return W1, b1, W2, b2, W3, b3
+
+# Step 7: Training Loop
+
+learning_rate = 0.1
+epochs = 20
+batch_size = 32
+
+loss_history = []
+
+for epoch in range(epochs):
+    
+    # Shuffle
+    idx = np.random.permutation(X_train.shape[0])
+    X_shuf = X_train[idx]
+    Y_shuf = Y_train_oh[idx]
+
+    # Mini-batch
+    for start in range(0, X_train.shape[0], batch_size):
+        X_batch = X_shuf[start:start+batch_size]
+        Y_batch = Y_shuf[start:start+batch_size]
+
+        # Forward
+        Z1, A1, Z2, A2, Z3, A3 = forward_pass(
+            X_batch, W1, b1, W2, b2, W3, b3)
+
+        # Loss
+        loss = mse_loss(Y_batch, A3)
+
+        # Backprop
+        dW1, db1, dW2, db2, dW3, db3 = backpropagation(
+            X_batch, Y_batch, Z1, A1, Z2, A2, Z3, A3,
+            W1, W2, W3)
+
+        # Update
+        W1, b1, W2, b2, W3, b3 = update_weights(
+            W1, b1, W2, b2, W3, b3,
+            dW1, db1, dW2, db2, dW3, db3,
+            learning_rate)
+
+    # Full dataset loss
+    _, _, _, _, _, A3_full = forward_pass(X_train, W1, b1, W2, b2, W3, b3)
+    epoch_loss = mse_loss(Y_train_oh, A3_full)
+    loss_history.append(epoch_loss)
+
+    print(f"Epoch {epoch+1}/{epochs} Loss: {epoch_loss:.4f}")
+
+# Step 8: Plot Loss Curve
+
+plt.plot(loss_history)
+plt.xlabel("Epoch")
+plt.ylabel("MSE Loss")
+plt.title("Training Loss Curve")
+plt.show()
+
+# Step 9: Test Accuracy
+
+_, _, _, _, _, A3_test = forward_pass(X_test, W1, b1, W2, b2, W3, b3)
+
+predictions = np.argmax(A3_test, axis=1)
+accuracy = np.mean(predictions == Y_test)
+
+print(f"Test Accuracy: {accuracy * 100:.2f}%")
+
+# Step 10: Show Sample Predictions
+
+plt.figure(figsize=(10,5))
+
+for i in range(10):
+    plt.subplot(2,5,i+1)
+    plt.imshow(X_test[i].reshape(28,28), cmap='gray')
+    plt.title(f"T:{Y_test[i]} P:{predictions[i]}")
+    plt.axis('off')
+
+plt.show()
